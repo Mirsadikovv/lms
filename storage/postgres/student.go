@@ -85,7 +85,8 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 
 	query := `SELECT id,
 					first_name,
-					last_name
+					last_name,
+					external_id
 				FROM students
 				WHERE TRUE ` + filter + `
 				OFFSET $1 LIMIT $2
@@ -102,7 +103,8 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 		if err := rows.Scan(
 			&student.Id,
 			&student.FirstName,
-			&lastName); err != nil {
+			&lastName,
+			&student.External_id); err != nil {
 			return resp, err
 		}
 
@@ -117,6 +119,30 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 
 	return resp, nil
 }
+
+// func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStudent, error) {
+// 	query := `SELECT id,
+// 					first_name,
+// 					last_name,
+// 					external_id
+// 				FROM students
+// 				WHERE external_id = $1 LIMIT 1`
+// 	rows := s.db.QueryRow(query, student.External_id)
+// 	// if err != nil {
+// 	// 	return student, err
+// 	// }
+
+// 	err := rows.Scan(
+// 		&student.Id,
+// 		&student.FirstName,
+// 		&student.LastName,
+// 		&student.External_id)
+// 	if err != nil {
+// 		return student, err
+// 	}
+
+// 	return student, nil
+// }
 
 func (s *studentRepo) Delete(student models.Student) error {
 	query := `DELETE FROM students WHERE id = $1`
