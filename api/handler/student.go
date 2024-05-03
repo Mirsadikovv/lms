@@ -2,10 +2,12 @@ package handler
 
 import (
 	"backend_course/lms/api/models"
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/spf13/cast"
 )
 
 func (h Handler) CreateStudent(c *gin.Context) {
@@ -75,28 +77,25 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 	handleResponse(c, "request successful", http.StatusOK, resp)
 }
 
-// func (h Handler) GetStudent(c *gin.Context) {
+func (h Handler) GetStudent(c *gin.Context) {
 
-// 	student := models.Student{}
+	student := models.GetStudent{}
 
-// 	id := c.Param("external_id")
-// 	// if err := uuid.Validate(id); err != nil {
-// 	// 	handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
-// 	// 	return
-// 	// }
-// 	fmt.Printf("%T---------->%s", id, id)
-// 	student.External_id = cast.ToString(id)
-// 	resp, err := h.Store.StudentStorage().GetStudentById(models.GetStudent{})
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			handleResponse(c, "student not found", http.StatusNotFound, err.Error())
-// 			return
-// 		}
-// 		handleResponse(c, "error while getting student", http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	handleResponse(c, "request successful", http.StatusOK, resp)
-// }
+	id := c.Param("external_id")
+
+	student.External_id = cast.ToString(id)
+
+	resp, err := h.Store.StudentStorage().GetStudentById(student)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handleResponse(c, "student not found", http.StatusNotFound, err.Error())
+			return
+		}
+		handleResponse(c, "error while getting student", http.StatusInternalServerError, err.Error())
+		return
+	}
+	handleResponse(c, "request successful", http.StatusOK, resp)
+}
 
 func (h Handler) DeleteStudent(c *gin.Context) {
 
