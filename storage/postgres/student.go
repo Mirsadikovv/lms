@@ -128,9 +128,6 @@ func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStude
 				FROM students
 				WHERE external_id = $1 LIMIT 1`
 	rows := s.db.QueryRow(query, student.External_id)
-	// if err != nil {
-	// 	return student, err
-	// }
 
 	err := rows.Scan(
 		&student.Id,
@@ -144,10 +141,10 @@ func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStude
 	return student, nil
 }
 
-func (s *studentRepo) Delete(student models.Student) error {
+func (s *studentRepo) Delete(id string) error {
 	query := `DELETE FROM students WHERE id = $1`
 
-	_, err := s.db.Exec(query, student.Id)
+	_, err := s.db.Exec(query, id)
 
 	if err != nil {
 		return err

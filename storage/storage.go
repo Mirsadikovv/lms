@@ -12,5 +12,5 @@ type StudentStorage interface {
 	Update(student models.Student) (string, error)
 	GetAll(student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error)
 	GetStudentById(student models.GetStudent) (models.GetStudent, error)
-	Delete(student models.Student) error
+	Delete(id string) error
 }
