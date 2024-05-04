@@ -3,8 +3,10 @@ package handler
 import (
 	_ "backend_course/lms/api/docs"
 	"backend_course/lms/api/models"
+	"backend_course/lms/pkg/check"
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -30,7 +32,13 @@ func (h Handler) CreateStudent(c *gin.Context) {
 		return
 	}
 
-	id, err := h.Store.StudentStorage().Create(student)
+	if err := check.ValidateYear(student.Age); err != nil {
+		handleResponse(c, "error while validating student age, year: "+strconv.Itoa(student.Age), http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	id, err := h.Service.Student().Create(student)
 	if err != nil {
 		handleResponse(c, "error while creating student", http.StatusBadRequest, err.Error())
 		return
@@ -66,7 +74,7 @@ func (h Handler) UpdateStudent(c *gin.Context) {
 		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
-	id, err := h.Store.StudentStorage().Update(student)
+	id, err := h.Service.Student().Update(student)
 	if err != nil {
 		handleResponse(c, "error while updating student", http.StatusInternalServerError, err.Error())
 		return
@@ -130,7 +138,7 @@ func (h Handler) GetStudent(c *gin.Context) {
 
 	student.External_id = cast.ToString(id)
 
-	resp, err := h.Store.StudentStorage().GetStudentById(student)
+	resp, err := h.Service.Student().GetStudentById(student)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleResponse(c, "student not found", http.StatusNotFound, err.Error())
@@ -160,11 +168,45 @@ func (h Handler) DeleteStudent(c *gin.Context) {
 		return
 	}
 
-	err := h.Store.StudentStorage().Delete(id)
+	err := h.Service.Student().Delete(id)
 	if err != nil {
 		handleResponse(c, "error while deleting student", http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	handleResponse(c, "Deleted successfully", http.StatusOK, nil)
+}
+
+// UpdateStudentActivity обновляет активность студента
+// @Router		/student/activity/{id} [patch]
+// @Summary		updates student activity
+// @Description	This api updates student activity and returns its id
+// @Tags		student
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "student id"
+// @Param		activity body models.Activity true "student activity"
+// @Success		200  {object}  models.Response
+// @Failure		400  {object}  models.Response
+// @Failure		404  {object}  models.Response
+// @Failure		500  {object}  models.Response
+func (h Handler) UpdateStudentActivity(c *gin.Context) {
+	id := c.Param("id")
+	if err := uuid.Validate(id); err != nil {
+		handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var activity models.Activity
+	if err := c.ShouldBindJSON(&activity); err != nil {
+		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if _, err := h.Store.StudentStorage().UpdateActivity(activity); err != nil {
+		handleResponse(c, "error while updating student activity", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, "Updated student activity successfully", http.StatusOK, id)
 }

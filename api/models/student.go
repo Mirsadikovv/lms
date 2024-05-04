@@ -9,6 +9,7 @@ type Student struct {
 	Phone       string `json:"phone"`
 	Mail        string `json:"mail"`
 	Pasword     string `json:"pasword"`
+	IsActive    bool   `json:"isactive"`
 }
 
 type GetStudent struct {
@@ -30,4 +31,9 @@ type GetAllStudentsRequest struct {
 type GetAllStudentsResponse struct {
 	Students []GetStudent `json:"students"`
 	Count    int64        `json:"count"`
+}
+
+type Activity struct {
+	Id       string `json:"id"`
+	IsActive bool   `json:"activity"`
 }

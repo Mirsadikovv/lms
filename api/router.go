@@ -2,6 +2,7 @@ package api
 
 import (
 	"backend_course/lms/api/handler"
+	"backend_course/lms/service"
 	"backend_course/lms/storage"
 
 	"github.com/gin-gonic/gin"
@@ -13,16 +14,23 @@ import (
 // @title           Swagger Example API
 // @version         1.0
 // @description     This is a sample server celler server.
-func New(store storage.IStorage) *gin.Engine {
-	h := handler.NewStrg(store)
+func New(store storage.IStorage, service service.IServiceManager) *gin.Engine {
+	h := handler.NewStrg(store, service)
 
 	r := gin.Default()
 
 	r.POST("/student", h.CreateStudent)
 	r.PUT("/student/update/:id", h.UpdateStudent)
+	r.PATCH("/student/activity/:id", h.UpdateStudentActivity)
 	r.GET("/student/", h.GetAllStudents)
 	r.GET("student/:external_id", h.GetStudent)
 	r.DELETE("/student/:id", h.DeleteStudent)
+
+	r.POST("/teacher", h.CreateTeacher)
+	r.PUT("/teacher/update/:id", h.UpdateTeacher)
+	r.GET("/teacher/", h.GetAllTeachers)
+	r.GET("teacher/:external_id", h.GetTeacher)
+	r.DELETE("/teacher/:id", h.DeleteTeacher)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

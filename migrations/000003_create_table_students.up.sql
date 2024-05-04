@@ -1,0 +1,2 @@
+-- ALTER TABLE students
+-- ADD COLUMN isactive BOOLEAN DEFAULT FALSE;

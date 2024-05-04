@@ -1,4 +1,11 @@
 definitions:
+  models.Activity:
+    properties:
+      activity:
+        type: boolean
+      id:
+        type: string
+    type: object
   models.Response:
     properties:
       data: {}
@@ -17,6 +24,8 @@ definitions:
         type: string
       id:
         type: string
+      isactive:
+        type: boolean
       last_name:
         type: string
       mail:
@@ -24,6 +33,25 @@ definitions:
       pasword:
         type: string
       phone:
+        type: string
+    type: object
+  models.Teacher:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      mail:
+        type: string
+      pasword:
+        type: string
+      phone:
+        type: string
+      start_working:
+        type: string
+      subject_id:
         type: string
     type: object
 info:
@@ -195,4 +223,206 @@ paths:
       summary: updates a student
       tags:
       - student
+  /student/activity/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: This api updates student activity and returns its id
+      parameters:
+      - description: student id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: student activity
+        in: body
+        name: activity
+        required: true
+        schema:
+          $ref: '#/definitions/models.Activity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: updates student activity
+      tags:
+      - student
+  /teacher:
+    post:
+      consumes:
+      - application/json
+      description: This api creates a teacher and returns its id
+      parameters:
+      - description: teacher
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/models.Teacher'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: creates a teacher
+      tags:
+      - teacher
+  /teacher/:
+    get:
+      consumes:
+      - application/json
+      description: This api get all teachers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: get all teachers
+      tags:
+      - teacher
+  /teacher/{external_id}:
+    get:
+      consumes:
+      - application/json
+      description: This api get teacher and returns its
+      parameters:
+      - description: external_id
+        in: path
+        name: external_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: get one teacher
+      tags:
+      - teacher
+  /teacher/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This api for delete teacher
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: delete one teacher
+      tags:
+      - teacher
+    put:
+      consumes:
+      - application/json
+      description: This api updates a teacher and returns its id
+      parameters:
+      - description: teacher
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/models.Teacher'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: updates a teacher
+      tags:
+      - teacher
 swagger: "2.0"
