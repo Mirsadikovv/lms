@@ -31,19 +31,16 @@ func (s *teacherRepo) Create(teacher models.Teacher) (string, error) {
 		subject_id,
 		start_working,
 		phone,
-		mail,
-		pasword) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
+		mail) VALUES ($1, $2, $3, $4, $5, $6, $7) `
 
-	_, err := s.db.Exec(context.Background(),
-		query,
+	_, err := s.db.Exec(context.Background(), query,
 		id,
 		teacher.FirstName,
 		teacher.LastName,
 		teacher.Subject_id,
 		teacher.Start_working,
 		teacher.Phone,
-		teacher.Mail,
-		teacher.Pasword)
+		teacher.Mail)
 
 	if err != nil {
 		return "", err
@@ -60,8 +57,7 @@ func (s *teacherRepo) Update(teacher models.Teacher) (string, error) {
 	subject_id = $3, 
 	start_working = $4,
 	phone = $5, 
-	mail = $6,
-	pasword = $7 WHERE id = $8`
+	mail = $6 WHERE id = $7`
 
 	_, err := s.db.Exec(context.Background(), query,
 		teacher.FirstName,
@@ -70,7 +66,6 @@ func (s *teacherRepo) Update(teacher models.Teacher) (string, error) {
 		teacher.Start_working,
 		teacher.Phone,
 		teacher.Mail,
-		teacher.Pasword,
 		teacher.Id)
 	if err != nil {
 		return "", err
@@ -131,8 +126,8 @@ func (s *teacherRepo) GetTeacherById(teacher models.GetTeacher) (models.GetTeach
 					last_name,
 					subject_id
 				FROM teachers
-				WHERE subject_id = $1 LIMIT 1`
-	rows := s.db.QueryRow(context.Background(), query, teacher.Subject_id)
+				WHERE id = $1 LIMIT 1`
+	rows := s.db.QueryRow(context.Background(), query, teacher.Id)
 
 	err := rows.Scan(
 		&teacher.Id,

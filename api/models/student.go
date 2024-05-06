@@ -12,14 +12,27 @@ type Student struct {
 	IsActive    bool   `json:"isactive"`
 }
 
+type UpdateStudent struct {
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Age         string `json:"age"`
+	External_id string `json:"external_id"`
+	Phone       string `json:"phone"`
+	Mail        string `json:"mail"`
+	Pasword     string `json:"pasword"`
+	IsActive    bool   `json:"isactive"`
+}
+
 type GetStudent struct {
 	Id          string `json:"id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
-	Age         int    `json:"age"`
+	Age         string `json:"age,omitempty"`
 	External_id string `json:"external_id"`
-	Phone       string `json:"phone"`
-	Mail        string `json:"mail"`
+	Phone       string `json:"phone,omitempty"`
+	Mail        string `json:"mail,omitempty"`
+	Created_at  string `json:"created_at"`
+	Updated     string `json:"updated"`
 }
 
 type GetAllStudentsRequest struct {

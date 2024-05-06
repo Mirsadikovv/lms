@@ -39,7 +39,7 @@ func (h Handler) CreateTeacher(c *gin.Context) {
 	handleResponse(c, "Created successfully", http.StatusOK, id)
 }
 
-// @Router		/teacher/{id} [put]
+// @Router		/teacher/update/{id} [put]
 // @Summary		updates a teacher
 // @Description	This api updates a teacher and returns its id
 // @Tags		teacher
@@ -111,13 +111,13 @@ func (h Handler) GetAllTeachers(c *gin.Context) {
 	handleResponse(c, "request successful", http.StatusOK, resp)
 }
 
-// @Router		/teacher/{external_id} [get]
+// @Router		/teacher/{id} [get]
 // @Summary		get one teacher
 // @Description	This api get teacher and returns its
 // @Tags		teacher
 // @Accept		json
 // @Produce		json
-// @Param 		external_id path string true "external_id"
+// @Param 		id path string true "id"
 // @Success		200  {object}  models.Response
 // @Failure		400  {object}  models.Response
 // @Failure		404  {object}  models.Response
@@ -126,9 +126,9 @@ func (h Handler) GetTeacher(c *gin.Context) {
 
 	teacher := models.GetTeacher{}
 
-	id := c.Param("external_id")
+	id := c.Param("id")
 
-	teacher.Subject_id = cast.ToString(id)
+	teacher.Id = cast.ToString(id)
 
 	resp, err := h.Store.TeacherStorage().GetTeacherById(teacher)
 	if err != nil {

@@ -167,57 +167,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/student/{external_id}": {
-            "get": {
-                "description": "This api get student and returns its",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "student"
-                ],
-                "summary": "get one student",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "external_id",
-                        "name": "external_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/student/{id}": {
+        "/student/update/{id}": {
             "put": {
                 "description": "This api updates a student and returns its id",
                 "consumes": [
@@ -274,7 +224,59 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/student/{external_id}": {
+            "get": {
+                "description": "This api get student and returns its",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "student"
+                ],
+                "summary": "get one student",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "external_id",
+                        "name": "external_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/student/{id}": {
             "delete": {
                 "description": "This api for delete student",
                 "consumes": [
@@ -414,9 +416,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/teacher/{external_id}": {
-            "get": {
-                "description": "This api get teacher and returns its",
+        "/teacher/update/{id}": {
+            "put": {
+                "description": "This api updates a teacher and returns its id",
                 "consumes": [
                     "application/json"
                 ],
@@ -426,12 +428,21 @@ const docTemplate = `{
                 "tags": [
                     "teacher"
                 ],
-                "summary": "get one teacher",
+                "summary": "updates a teacher",
                 "parameters": [
                     {
+                        "description": "teacher",
+                        "name": "teacher",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    {
                         "type": "string",
-                        "description": "external_id",
-                        "name": "external_id",
+                        "description": "id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -465,8 +476,8 @@ const docTemplate = `{
             }
         },
         "/teacher/{id}": {
-            "put": {
-                "description": "This api updates a teacher and returns its id",
+            "get": {
+                "description": "This api get teacher and returns its",
                 "consumes": [
                     "application/json"
                 ],
@@ -476,17 +487,8 @@ const docTemplate = `{
                 "tags": [
                     "teacher"
                 ],
-                "summary": "updates a teacher",
+                "summary": "get one teacher",
                 "parameters": [
-                    {
-                        "description": "teacher",
-                        "name": "teacher",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Teacher"
-                        }
-                    },
                     {
                         "type": "string",
                         "description": "id",
@@ -638,9 +640,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "mail": {
-                    "type": "string"
-                },
-                "pasword": {
                     "type": "string"
                 },
                 "phone": {

@@ -47,7 +47,7 @@ func (h Handler) CreateStudent(c *gin.Context) {
 	handleResponse(c, "Created successfully", http.StatusOK, id)
 }
 
-// @Router		/student/{id} [put]
+// @Router		/student/update/{id} [put]
 // @Summary		updates a student
 // @Description	This api updates a student and returns its id
 // @Tags		student
@@ -61,20 +61,19 @@ func (h Handler) CreateStudent(c *gin.Context) {
 // @Failure		500  {object}  models.Response
 func (h Handler) UpdateStudent(c *gin.Context) {
 
-	student := models.Student{}
+	student := models.UpdateStudent{}
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
 		handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
 		return
 	}
-	student.Id = id
 
 	if err := c.ShouldBindJSON(&student); err != nil {
 		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
-	id, err := h.Service.Student().Update(student)
+	id, err := h.Service.Student().Update(student, id)
 	if err != nil {
 		handleResponse(c, "error while updating student", http.StatusInternalServerError, err.Error())
 		return

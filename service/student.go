@@ -25,9 +25,9 @@ func (s studentService) Create(student models.Student) (string, error) {
 	return id, nil
 }
 
-func (s studentService) Update(student models.Student) (string, error) {
+func (s studentService) Update(student models.UpdateStudent, id string) (string, error) {
 	// business logic
-	id, err := s.storage.StudentStorage().Update(student)
+	id, err := s.storage.StudentStorage().Update(student, id)
 	if err != nil {
 		fmt.Println("error while updating student, err: ", err)
 		return "", err

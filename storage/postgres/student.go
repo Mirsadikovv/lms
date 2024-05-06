@@ -52,7 +52,7 @@ func (s *studentRepo) Create(student models.Student) (string, error) {
 	return id.String(), nil
 }
 
-func (s *studentRepo) Update(student models.Student) (string, error) {
+func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, error) {
 
 	query := `UPDATE students SET first_name = $1, 
 	last_name =$2, 
@@ -60,16 +60,18 @@ func (s *studentRepo) Update(student models.Student) (string, error) {
 	external_id = $4,
 	phone = $5, 
 	mail = $6,
-	pasword = $7 WHERE id = $8`
+	pasword = $7,
+	updated = 'NOW()' WHERE id = $8`
 
-	_, err := s.db.Exec(context.Background(), query, student.FirstName,
+	_, err := s.db.Exec(context.Background(), query,
+		student.FirstName,
 		student.LastName,
 		student.Age,
 		student.External_id,
 		student.Phone,
 		student.Mail,
 		student.Pasword,
-		student.Id)
+		id)
 	if err != nil {
 		return "", err
 	}
@@ -79,9 +81,9 @@ func (s *studentRepo) Update(student models.Student) (string, error) {
 
 func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) {
 	resp := models.GetAllStudentsResponse{}
+	var created sql.NullString
 	filter := ""
 	offest := (req.Page - 1) * req.Limit
-
 	if req.Search != "" {
 		filter = ` AND first_name ILIKE '%` + req.Search + `%' `
 	}
@@ -89,7 +91,9 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 	query := `SELECT id,
 					first_name,
 					last_name,
-					external_id
+					age,
+					external_id,
+					to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM')
 				FROM students
 				WHERE TRUE ` + filter + `
 				OFFSET $1 LIMIT $2
@@ -107,11 +111,15 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 			&student.Id,
 			&student.FirstName,
 			&lastName,
-			&student.External_id); err != nil {
+			&student.Age,
+			&student.External_id,
+			&created); err != nil {
 			return resp, err
 		}
 
 		student.LastName = pkg.NullStringToString(lastName)
+		student.Created_at = pkg.NullStringToString(created)
+
 		resp.Students = append(resp.Students, student)
 	}
 
@@ -124,10 +132,16 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 }
 
 func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStudent, error) {
+	var updated sql.NullString
 	query := `SELECT id,
 					first_name,
 					last_name,
-					external_id
+					age,
+					external_id,
+					phone,
+					mail,
+					to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM'),
+					to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
 				FROM students
 				WHERE external_id = $1 LIMIT 1`
 	rows := s.db.QueryRow(context.Background(), query, student.External_id)
@@ -136,10 +150,16 @@ func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStude
 		&student.Id,
 		&student.FirstName,
 		&student.LastName,
-		&student.External_id)
+		&student.Age,
+		&student.External_id,
+		&student.Phone,
+		&student.Mail,
+		&student.Created_at,
+		&updated)
 	if err != nil {
 		return student, err
 	}
+	student.Updated = pkg.NullStringToString(updated)
 
 	return student, nil
 }

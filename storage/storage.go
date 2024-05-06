@@ -10,7 +10,7 @@ type IStorage interface {
 
 type StudentStorage interface {
 	Create(student models.Student) (string, error)
-	Update(student models.Student) (string, error)
+	Update(student models.UpdateStudent, id string) (string, error)
 	UpdateActivity(student models.Activity) (string, error)
 	GetAll(student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error)
 	GetStudentById(student models.GetStudent) (models.GetStudent, error)
