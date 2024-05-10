@@ -25,17 +25,17 @@ func (h Handler) CreateTimetable(c *gin.Context) {
 	timetable := models.Timetable{}
 
 	if err := c.ShouldBindJSON(&timetable); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.Service.Timetable().Create(timetable)
 	if err != nil {
-		handleResponse(c, "error while creating timetable", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while creating timetable", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	handleResponse(c, "Created successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Created successfully", http.StatusOK, id)
 }
 
 // @Router		/timetable/update/{id} [put]
@@ -56,22 +56,22 @@ func (h Handler) UpdateTimetable(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating timetableId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating timetableId", http.StatusBadRequest, err.Error())
 		return
 	}
 	timetable.Id = id
 
 	if err := c.ShouldBindJSON(&timetable); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 	id, err := h.Service.Timetable().Update(timetable, id)
 	if err != nil {
-		handleResponse(c, "error while updating timetable", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while updating timetable", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Updated successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Updated successfully", http.StatusOK, id)
 }
 
 // @Router		/timetable/{id} [get]
@@ -95,13 +95,13 @@ func (h Handler) GetTimetable(c *gin.Context) {
 	resp, err := h.Service.Timetable().GetTimetableById(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handleResponse(c, "timetable not found", http.StatusNotFound, err.Error())
+			handleResponse(c, h.Log, "timetable not found", http.StatusNotFound, err.Error())
 			return
 		}
-		handleResponse(c, "error while getting timetable", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while getting timetable", http.StatusInternalServerError, err.Error())
 		return
 	}
-	handleResponse(c, "request successful", http.StatusOK, resp)
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
 }
 
 // @Router		/timetable/{id} [delete]
@@ -118,15 +118,15 @@ func (h Handler) DeleteTimetable(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating timetableId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating timetableId", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.Service.Timetable().Delete(id)
 	if err != nil {
-		handleResponse(c, "error while deleting timetable", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while deleting timetable", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Deleted successfully", http.StatusOK, nil)
+	handleResponse(c, h.Log, "Deleted successfully", http.StatusOK, nil)
 }

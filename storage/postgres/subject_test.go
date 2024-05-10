@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"backend_course/lms/api/models"
+	"context"
 	"fmt"
 	"testing"
 
@@ -18,9 +19,9 @@ func TestCreateSubject(t *testing.T) {
 		Name: faker.Word(),
 		Type: faker.Word()}
 
-	_, err := subjectRepo.Create(reqSubject)
+	_, err := subjectRepo.Create(context.Background(), reqSubject)
 	if assert.NoError(t, err) {
-		createdSubject, err := subjectRepo.GetSubjectById(id.String())
+		createdSubject, err := subjectRepo.GetSubjectById(context.Background(), id.String())
 		if assert.NoError(t, err) {
 			assert.Equal(t, reqSubject.Name, createdSubject.Name)
 			assert.Equal(t, reqSubject.Type, createdSubject.Type)
@@ -39,9 +40,9 @@ func TestUpdateSubject(t *testing.T) {
 		Name: faker.Word(),
 		Type: faker.Word()}
 
-	_, err := subjectRepo.Update(reqSubject, "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
+	_, err := subjectRepo.Update(context.Background(), reqSubject, "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
 	if assert.NoError(t, err) {
-		createdSubject, err := subjectRepo.GetSubjectById("0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
+		createdSubject, err := subjectRepo.GetSubjectById(context.Background(), "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
 		if assert.NoError(t, err) {
 			assert.Equal(t, reqSubject.Name, createdSubject.Name)
 			assert.Equal(t, reqSubject.Type, createdSubject.Type)
@@ -59,9 +60,9 @@ func TestGetSubject(t *testing.T) {
 		Name: faker.Word(),
 		Type: faker.Word()}
 
-	_, err := subjectRepo.Update(reqSubject, "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
+	_, err := subjectRepo.Update(context.Background(), reqSubject, "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
 	if assert.NoError(t, err) {
-		createdSubject, err := subjectRepo.GetSubjectById("0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
+		createdSubject, err := subjectRepo.GetSubjectById(context.Background(), "0e074d6b-9c4d-4a98-b5ff-ab9daa929d5c")
 		if assert.NoError(t, err) {
 			assert.Equal(t, reqSubject.Name, createdSubject.Name)
 			assert.Equal(t, reqSubject.Type, createdSubject.Type)
@@ -75,7 +76,7 @@ func TestGetSubject(t *testing.T) {
 func TestDeleteSubject(t *testing.T) {
 	subjectRepo := NewSubject(db)
 
-	id, err := subjectRepo.Delete("d20ffed0-e186-4512-86aa-4575bdc51fbb")
+	id, err := subjectRepo.Delete(context.Background(), "d20ffed0-e186-4512-86aa-4575bdc51fbb")
 	if assert.NoError(t, err) {
 		assert.Equal(t, "d20ffed0-e186-4512-86aa-4575bdc51fbb", id)
 		return

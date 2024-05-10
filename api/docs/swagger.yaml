@@ -140,6 +140,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
       summary: get all students
       tags:
       - student
@@ -747,4 +749,9 @@ paths:
       summary: updates a timetable
       tags:
       - timetable
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

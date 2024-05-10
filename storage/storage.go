@@ -31,11 +31,11 @@ type TeacherStorage interface {
 }
 
 type SubjectStorage interface {
-	Create(subject models.Subject) (string, error)
-	Update(subject models.Subject, id string) (string, error)
-	GetAll(req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error)
-	GetSubjectById(id string) (models.GetSubject, error)
-	Delete(id string) (string, error)
+	Create(ctx context.Context, subject models.Subject) (string, error)
+	Update(ctx context.Context, subject models.Subject, id string) (string, error)
+	GetAll(ctx context.Context, req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error)
+	GetSubjectById(ctx context.Context, id string) (models.GetSubject, error)
+	Delete(ctx context.Context, id string) (string, error)
 }
 
 type TimetableStorage interface {

@@ -2,8 +2,9 @@ package api
 
 import (
 	"backend_course/lms/api/handler"
+	"backend_course/lms/pkg/logger"
 	"backend_course/lms/service"
-	"backend_course/lms/storage"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -14,15 +15,22 @@ import (
 // @title           Swagger Example API
 // @version         1.0
 // @description     This is a sample server celler server.
-func New(store storage.IStorage, service service.IServiceManager) *gin.Engine {
-	h := handler.NewStrg(store, service)
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+func New(service service.IServiceManager, log logger.ILogger) *gin.Engine {
+	h := handler.NewStrg(service, log)
 
 	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// r.Use(authMiddleware)
 
 	r.POST("/student", h.CreateStudent)
 	r.PUT("/student/update/:id", h.UpdateStudent)
 	r.PATCH("/student/activity/:id", h.UpdateStudentActivity)
-	r.GET("/student", h.GetAllStudents)
+	r.GET("/student", authMiddleware, h.GetAllStudents)
 	r.GET("student/:external_id", h.GetStudent)
 	r.DELETE("/student/:id", h.DeleteStudent)
 
@@ -43,7 +51,13 @@ func New(store storage.IStorage, service service.IServiceManager) *gin.Engine {
 	r.GET("timetable/:id", h.GetTimetable)
 	r.DELETE("/timetable/:id", h.DeleteTimetable)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	return r
+}
+
+func authMiddleware(c *gin.Context) {
+	if c.GetHeader("Authorization") != "secret" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	c.Next()
 }

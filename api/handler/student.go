@@ -25,23 +25,23 @@ func (h Handler) CreateStudent(c *gin.Context) {
 	student := models.Student{}
 
 	if err := c.ShouldBindJSON(&student); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	// if err := check.ValidateYear(student.Age); err != nil {
-	// 	handleResponse(c, "error while validating student age, year: "+strconv.Itoa(student.Age), http.StatusBadRequest, err.Error())
+	// 	handleResponse(c, h.Log, "error while validating student age, year: "+strconv.Itoa(student.Age), http.StatusBadRequest, err.Error())
 
 	// 	return
 	// }
 
 	id, err := h.Service.Student().Create(c.Request.Context(), student)
 	if err != nil {
-		handleResponse(c, "error while creating student", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while creating student", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	handleResponse(c, "Created successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Created successfully", http.StatusOK, id)
 }
 
 // @Router		/student/update/{id} [put]
@@ -62,23 +62,24 @@ func (h Handler) UpdateStudent(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating studentId", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := c.ShouldBindJSON(&student); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 	id, err := h.Service.Student().Update(c.Request.Context(), student, id)
 	if err != nil {
-		handleResponse(c, "error while updating student", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while updating student", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Updated successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Updated successfully", http.StatusOK, id)
 }
 
+// @Security ApiKeyAuth
 // @Router		/student/ [get]
 // @Summary		get all students
 // @Description	This api get all students
@@ -94,12 +95,12 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 
 	page, err := ParsePageQueryParam(c)
 	if err != nil {
-		handleResponse(c, "error while parsing page", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while parsing page", http.StatusBadRequest, err.Error())
 		return
 	}
 	limit, err := ParseLimitQueryParam(c)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -109,10 +110,10 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 		Limit:  limit,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting all students", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while getting all students", http.StatusInternalServerError, err.Error())
 		return
 	}
-	handleResponse(c, "request successful", http.StatusOK, resp)
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
 }
 
 // @Router		/student/{external_id} [get]
@@ -133,13 +134,13 @@ func (h Handler) GetStudent(c *gin.Context) {
 	resp, err := h.Service.Student().GetStudentById(c.Request.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handleResponse(c, "student not found", http.StatusNotFound, err.Error())
+			handleResponse(c, h.Log, "student not found", http.StatusNotFound, err.Error())
 			return
 		}
-		handleResponse(c, "error while getting student", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while getting student", http.StatusInternalServerError, err.Error())
 		return
 	}
-	handleResponse(c, "request successful", http.StatusOK, resp)
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
 }
 
 // @Router		/student/{id} [delete]
@@ -156,17 +157,17 @@ func (h Handler) DeleteStudent(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating studentId", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.Service.Student().Delete(c.Request.Context(), id)
 	if err != nil {
-		handleResponse(c, "error while deleting student", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while deleting student", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Deleted successfully", http.StatusOK, nil)
+	handleResponse(c, h.Log, "Deleted successfully", http.StatusOK, nil)
 }
 
 // UpdateStudentActivity обновляет активность студента
@@ -185,20 +186,20 @@ func (h Handler) DeleteStudent(c *gin.Context) {
 func (h Handler) UpdateStudentActivity(c *gin.Context) {
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating studentId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating studentId", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var activity models.Activity
 	if err := c.ShouldBindJSON(&activity); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if _, err := h.Service.Student().UpdateActivity(c.Request.Context(), activity); err != nil {
-		handleResponse(c, "error while updating student activity", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while updating student activity", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Updated student activity successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Updated student activity successfully", http.StatusOK, id)
 }

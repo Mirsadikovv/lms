@@ -20,7 +20,7 @@ func NewSubject(db *pgxpool.Pool) subjectRepo {
 	}
 }
 
-func (s *subjectRepo) Create(subject models.Subject) (string, error) {
+func (s *subjectRepo) Create(ctx context.Context, subject models.Subject) (string, error) {
 
 	id := uuid.New()
 
@@ -30,7 +30,7 @@ func (s *subjectRepo) Create(subject models.Subject) (string, error) {
 		type,
 		created_at) VALUES ($1, $2, $3, 'NOW()') `
 
-	_, err := s.db.Exec(context.Background(),
+	_, err := s.db.Exec(ctx,
 		query,
 		id,
 		subject.Name,
@@ -43,13 +43,13 @@ func (s *subjectRepo) Create(subject models.Subject) (string, error) {
 	return id.String(), nil
 }
 
-func (s *subjectRepo) Update(subject models.Subject, id string) (string, error) {
+func (s *subjectRepo) Update(ctx context.Context, subject models.Subject, id string) (string, error) {
 
 	query := `UPDATE subjects SET name = $1, 
 	type =$2, 
 	updated = 'NOW()' WHERE id = $3`
 
-	_, err := s.db.Exec(context.Background(), query,
+	_, err := s.db.Exec(ctx, query,
 		subject.Name,
 		subject.Type,
 		id)
@@ -60,7 +60,7 @@ func (s *subjectRepo) Update(subject models.Subject, id string) (string, error) 
 	return "", nil
 }
 
-func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) {
+func (s *subjectRepo) GetSubjectById(ctx context.Context, id string) (models.GetSubject, error) {
 
 	var (
 		updated sql.NullString
@@ -73,7 +73,7 @@ func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) {
 					to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
 				FROM subjects
 				WHERE id = $1 LIMIT 1`
-	rows := s.db.QueryRow(context.Background(), query, id)
+	rows := s.db.QueryRow(ctx, query, id)
 
 	err := rows.Scan(
 		&subject.Id,
@@ -89,19 +89,19 @@ func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) {
 	return subject, nil
 }
 
-func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error) {
+func (s *subjectRepo) GetAll(ctx context.Context, req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error) {
 	resp := models.GetAllSubjectsResponse{}
 	var updated sql.NullString
 	offest := (req.Page - 1) * req.Limit
 	query := `SELECT id,
 					name,
 					type,
-					to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM')
+					to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM'),
 					to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
 				FROM subjects
 				OFFSET $1 LIMIT $2
 					`
-	rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+	rows, err := s.db.Query(ctx, query, offest, req.Limit)
 	if err != nil {
 		return resp, err
 	}
@@ -121,7 +121,7 @@ func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSub
 		resp.Subjects = append(resp.Subjects, subject)
 	}
 
-	err = s.db.QueryRow(context.Background(), `SELECT count(*) from subjects`).Scan(&resp.Count)
+	err = s.db.QueryRow(ctx, `SELECT count(*) from subjects`).Scan(&resp.Count)
 	if err != nil {
 		return resp, err
 	}
@@ -129,10 +129,10 @@ func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSub
 	return resp, nil
 }
 
-func (s *subjectRepo) Delete(id string) (string, error) {
+func (s *subjectRepo) Delete(ctx context.Context, id string) (string, error) {
 	query := `DELETE FROM subjects WHERE id = $1`
 
-	_, err := s.db.Exec(context.Background(), query, id)
+	_, err := s.db.Exec(ctx, query, id)
 
 	if err != nil {
 		return "", err

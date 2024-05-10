@@ -25,17 +25,17 @@ func (h Handler) CreateTeacher(c *gin.Context) {
 	teacher := models.Teacher{}
 
 	if err := c.ShouldBindJSON(&teacher); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.Service.Teacher().Create(c.Request.Context(), teacher)
 	if err != nil {
-		handleResponse(c, "error while creating teacher", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while creating teacher", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	handleResponse(c, "Created successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Created successfully", http.StatusOK, id)
 }
 
 // @Router		/teacher/update/{id} [put]
@@ -56,22 +56,22 @@ func (h Handler) UpdateTeacher(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating teacherId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating teacherId", http.StatusBadRequest, err.Error())
 		return
 	}
 	teacher.Id = id
 
 	if err := c.ShouldBindJSON(&teacher); err != nil {
-		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
 	id, err := h.Service.Teacher().Update(c.Request.Context(), teacher, id)
 	if err != nil {
-		handleResponse(c, "error while updating teacher", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while updating teacher", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Updated successfully", http.StatusOK, id)
+	handleResponse(c, h.Log, "Updated successfully", http.StatusOK, id)
 }
 
 // @Router		/teacher [get]
@@ -89,12 +89,12 @@ func (h Handler) GetAllTeachers(c *gin.Context) {
 
 	page, err := ParsePageQueryParam(c)
 	if err != nil {
-		handleResponse(c, "error while parsing page", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while parsing page", http.StatusBadRequest, err.Error())
 		return
 	}
 	limit, err := ParseLimitQueryParam(c)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -104,10 +104,10 @@ func (h Handler) GetAllTeachers(c *gin.Context) {
 		Limit:  limit,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting all teachers", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while getting all teachers", http.StatusInternalServerError, err.Error())
 		return
 	}
-	handleResponse(c, "request successful", http.StatusOK, resp)
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
 }
 
 // @Router		/teacher/{id} [get]
@@ -131,13 +131,13 @@ func (h Handler) GetTeacher(c *gin.Context) {
 	resp, err := h.Service.Teacher().GetTeacherById(c.Request.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			handleResponse(c, "teacher not found", http.StatusNotFound, err.Error())
+			handleResponse(c, h.Log, "teacher not found", http.StatusNotFound, err.Error())
 			return
 		}
-		handleResponse(c, "error while getting teacher", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while getting teacher", http.StatusInternalServerError, err.Error())
 		return
 	}
-	handleResponse(c, "request successful", http.StatusOK, resp)
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
 }
 
 // @Router		/teacher/{id} [delete]
@@ -154,15 +154,15 @@ func (h Handler) DeleteTeacher(c *gin.Context) {
 
 	id := c.Param("id")
 	if err := uuid.Validate(id); err != nil {
-		handleResponse(c, "error while validating teacherId", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.Log, "error while validating teacherId", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.Service.Teacher().Delete(c.Request.Context(), id)
 	if err != nil {
-		handleResponse(c, "error while deleting teacher", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.Log, "error while deleting teacher", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "Deleted successfully", http.StatusOK, nil)
+	handleResponse(c, h.Log, "Deleted successfully", http.StatusOK, nil)
 }
