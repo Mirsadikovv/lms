@@ -1,4 +1,4 @@
-CREATE TABLE teachers (
+CREATE TABLE IF NOT EXISTS teachers (
   id uuid PRIMARY KEY,
   first_name VARCHAR,
   last_name VARCHAR,

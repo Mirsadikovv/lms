@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/cast"
 )
 
 // @Router		/teacher [post]
@@ -30,7 +29,7 @@ func (h Handler) CreateTeacher(c *gin.Context) {
 		return
 	}
 
-	id, err := h.Store.TeacherStorage().Create(teacher)
+	id, err := h.Service.Teacher().Create(c.Request.Context(), teacher)
 	if err != nil {
 		handleResponse(c, "error while creating teacher", http.StatusBadRequest, err.Error())
 		return
@@ -66,7 +65,7 @@ func (h Handler) UpdateTeacher(c *gin.Context) {
 		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
-	id, err := h.Store.TeacherStorage().Update(teacher)
+	id, err := h.Service.Teacher().Update(c.Request.Context(), teacher, id)
 	if err != nil {
 		handleResponse(c, "error while updating teacher", http.StatusInternalServerError, err.Error())
 		return
@@ -75,7 +74,7 @@ func (h Handler) UpdateTeacher(c *gin.Context) {
 	handleResponse(c, "Updated successfully", http.StatusOK, id)
 }
 
-// @Router		/teacher/ [get]
+// @Router		/teacher [get]
 // @Summary		get all teachers
 // @Description	This api get all teachers
 // @Tags		teacher
@@ -99,7 +98,7 @@ func (h Handler) GetAllTeachers(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.Store.TeacherStorage().GetAll(models.GetAllTeachersRequest{
+	resp, err := h.Service.Teacher().GetAllTeachers(c.Request.Context(), models.GetAllTeachersRequest{
 		Search: search,
 		Page:   page,
 		Limit:  limit,
@@ -124,13 +123,12 @@ func (h Handler) GetAllTeachers(c *gin.Context) {
 // @Failure		500  {object}  models.Response
 func (h Handler) GetTeacher(c *gin.Context) {
 
-	teacher := models.GetTeacher{}
-
+	// teacher := models.GetTeacher{}
 	id := c.Param("id")
 
-	teacher.Id = cast.ToString(id)
+	// teacher.Id = cast.ToString(id)
 
-	resp, err := h.Store.TeacherStorage().GetTeacherById(teacher)
+	resp, err := h.Service.Teacher().GetTeacherById(c.Request.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleResponse(c, "teacher not found", http.StatusNotFound, err.Error())
@@ -160,7 +158,7 @@ func (h Handler) DeleteTeacher(c *gin.Context) {
 		return
 	}
 
-	err := h.Store.TeacherStorage().Delete(id)
+	err := h.Service.Teacher().Delete(c.Request.Context(), id)
 	if err != nil {
 		handleResponse(c, "error while deleting teacher", http.StatusInternalServerError, err.Error())
 		return

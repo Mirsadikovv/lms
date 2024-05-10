@@ -5,6 +5,7 @@ import (
 	"backend_course/lms/pkg"
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,7 +21,7 @@ func NewStudent(db *pgxpool.Pool) studentRepo {
 	}
 }
 
-func (s *studentRepo) Create(student models.Student) (string, error) {
+func (s *studentRepo) Create(ctx context.Context, student models.Student) (string, error) {
 
 	id := uuid.New()
 
@@ -34,7 +35,7 @@ func (s *studentRepo) Create(student models.Student) (string, error) {
 		mail,
 		pasword) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
 
-	_, err := s.db.Exec(context.Background(),
+	_, err := s.db.Exec(ctx,
 		query,
 		id,
 		student.FirstName,
@@ -52,7 +53,7 @@ func (s *studentRepo) Create(student models.Student) (string, error) {
 	return id.String(), nil
 }
 
-func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, error) {
+func (s *studentRepo) Update(ctx context.Context, student models.UpdateStudent, id string) (string, error) {
 
 	query := `UPDATE students SET first_name = $1, 
 	last_name =$2, 
@@ -63,7 +64,7 @@ func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, e
 	pasword = $7,
 	updated = 'NOW()' WHERE id = $8`
 
-	_, err := s.db.Exec(context.Background(), query,
+	_, err := s.db.Exec(ctx, query,
 		student.FirstName,
 		student.LastName,
 		student.Age,
@@ -79,7 +80,7 @@ func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, e
 	return "", nil
 }
 
-func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) {
+func (s *studentRepo) GetAll(ctx context.Context, req models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) {
 	resp := models.GetAllStudentsResponse{}
 	var created sql.NullString
 	filter := ""
@@ -98,7 +99,7 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 				WHERE TRUE ` + filter + `
 				OFFSET $1 LIMIT $2
 					`
-	rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+	rows, err := s.db.Query(ctx, query, offest, req.Limit)
 	if err != nil {
 		return resp, err
 	}
@@ -123,7 +124,7 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 		resp.Students = append(resp.Students, student)
 	}
 
-	err = s.db.QueryRow(context.Background(), `SELECT count(*) from students WHERE TRUE `+filter+``).Scan(&resp.Count)
+	err = s.db.QueryRow(ctx, `SELECT count(*) from students WHERE TRUE `+filter+``).Scan(&resp.Count)
 	if err != nil {
 		return resp, err
 	}
@@ -131,7 +132,8 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
 	return resp, nil
 }
 
-func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStudent, error) {
+func (s *studentRepo) GetStudentById(ctx context.Context, external_id string) (models.GetStudent, error) {
+	student := models.GetStudent{}
 	var updated sql.NullString
 	query := `SELECT id,
 					first_name,
@@ -144,8 +146,8 @@ func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStude
 					to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
 				FROM students
 				WHERE external_id = $1 LIMIT 1`
-	rows := s.db.QueryRow(context.Background(), query, student.External_id)
-
+	rows := s.db.QueryRow(ctx, query, external_id)
+	fmt.Println(external_id)
 	err := rows.Scan(
 		&student.Id,
 		&student.FirstName,
@@ -164,20 +166,20 @@ func (s *studentRepo) GetStudentById(student models.GetStudent) (models.GetStude
 	return student, nil
 }
 
-func (s *studentRepo) Delete(id string) error {
+func (s *studentRepo) Delete(ctx context.Context, id string) (string, error) {
 	query := `DELETE FROM students WHERE id = $1`
 
-	_, err := s.db.Exec(context.Background(), query, id)
+	_, err := s.db.Exec(ctx, query, id)
 
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return id, nil
 }
 
-func (s *studentRepo) UpdateActivity(student models.Activity) (string, error) {
+func (s *studentRepo) UpdateActivity(ctx context.Context, student models.Activity) (string, error) {
 	query := "UPDATE students SET isactive = $1 WHERE id = $2"
-	_, err := s.db.Exec(context.Background(), query, student.IsActive, student.Id)
+	_, err := s.db.Exec(ctx, query, student.IsActive, student.Id)
 	if err != nil {
 		return "", err
 	}

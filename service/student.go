@@ -3,6 +3,7 @@ package service
 import (
 	"backend_course/lms/api/models"
 	"backend_course/lms/storage"
+	"context"
 	"fmt"
 )
 
@@ -14,9 +15,9 @@ func NewStudentService(storage storage.IStorage) studentService {
 	return studentService{storage: storage}
 }
 
-func (s studentService) Create(student models.Student) (string, error) {
+func (s studentService) Create(ctx context.Context, student models.Student) (string, error) {
 	// business logic
-	id, err := s.storage.StudentStorage().Create(student)
+	id, err := s.storage.StudentStorage().Create(ctx, student)
 	if err != nil {
 		fmt.Println("error while creating student, err: ", err)
 		return "", err
@@ -25,9 +26,9 @@ func (s studentService) Create(student models.Student) (string, error) {
 	return id, nil
 }
 
-func (s studentService) Update(student models.UpdateStudent, id string) (string, error) {
+func (s studentService) Update(ctx context.Context, student models.UpdateStudent, id string) (string, error) {
 	// business logic
-	id, err := s.storage.StudentStorage().Update(student, id)
+	id, err := s.storage.StudentStorage().Update(ctx, student, id)
 	if err != nil {
 		fmt.Println("error while updating student, err: ", err)
 		return "", err
@@ -36,9 +37,9 @@ func (s studentService) Update(student models.UpdateStudent, id string) (string,
 	return id, nil
 }
 
-func (s studentService) GetAllStudents(student models.Student) (models.GetAllStudentsResponse, error) {
+func (s studentService) GetAllStudents(ctx context.Context, student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) {
 	// business logic
-	students, err := s.storage.StudentStorage().GetAll(models.GetAllStudentsRequest{})
+	students, err := s.storage.StudentStorage().GetAll(ctx, models.GetAllStudentsRequest{})
 	if err != nil {
 		fmt.Println("error while getting all student, err: ", err)
 		return students, err
@@ -46,9 +47,9 @@ func (s studentService) GetAllStudents(student models.Student) (models.GetAllStu
 	// business logic
 	return students, nil
 }
-func (s studentService) GetStudentById(student models.GetStudent) (models.GetStudent, error) {
+func (s studentService) GetStudentById(ctx context.Context, external_id string) (models.GetStudent, error) {
 	// business logic
-	resp, err := s.storage.StudentStorage().GetStudentById(student)
+	resp, err := s.storage.StudentStorage().GetStudentById(ctx, external_id)
 	if err != nil {
 		fmt.Println("error while getting all student, err: ", err)
 		return resp, err
@@ -57,13 +58,24 @@ func (s studentService) GetStudentById(student models.GetStudent) (models.GetStu
 	return resp, nil
 }
 
-func (s studentService) Delete(id string) error {
+func (s studentService) Delete(ctx context.Context, id string) error {
 	// business logic
-	err := s.storage.StudentStorage().Delete(id)
+	_, err := s.storage.StudentStorage().Delete(ctx, id)
 	if err != nil {
 		fmt.Println("error while deletting all student, err: ", err)
 		return err
 	}
 	// business logic
 	return nil
+}
+
+func (s studentService) UpdateActivity(ctx context.Context, student models.Activity) (string, error) {
+	// business logic
+	id, err := s.storage.StudentStorage().UpdateActivity(ctx, student)
+	if err != nil {
+		fmt.Println("error while updating student, err: ", err)
+		return "", err
+	}
+	// business logic
+	return id, nil
 }

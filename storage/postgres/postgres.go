@@ -74,6 +74,7 @@ func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
 		Pool: newPool,
 	}, nil
 }
+
 func (s Store) CloseDB() {
 	s.Pool.Close()
 }
@@ -88,4 +89,16 @@ func (s Store) TeacherStorage() storage.TeacherStorage {
 	newTeacher := NewTeacher(s.Pool)
 
 	return &newTeacher
+}
+
+func (s Store) SubjectStorage() storage.SubjectStorage {
+	NewSubject := NewSubject(s.Pool)
+
+	return &NewSubject
+}
+
+func (s Store) TimetableStorage() storage.TimetableStorage {
+	NewTimetable := NewTimetable(s.Pool)
+
+	return &NewTimetable
 }

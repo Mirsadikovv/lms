@@ -20,11 +20,11 @@ func NewTeacher(db *pgxpool.Pool) teacherRepo {
 	}
 }
 
-func (s *teacherRepo) Create(teacher models.Teacher) (string, error) {
+func (s *teacherRepo) Create(ctx context.Context, teacher models.Teacher) (string, error) {
 
 	id := uuid.New()
 
-	query := ` INSERT INTO teachers (
+	query := `INSERT INTO teachers (
 		id,
 		first_name,
 		last_name,
@@ -33,7 +33,7 @@ func (s *teacherRepo) Create(teacher models.Teacher) (string, error) {
 		phone,
 		mail) VALUES ($1, $2, $3, $4, $5, $6, $7) `
 
-	_, err := s.db.Exec(context.Background(), query,
+	_, err := s.db.Exec(ctx, query,
 		id,
 		teacher.FirstName,
 		teacher.LastName,
@@ -49,24 +49,24 @@ func (s *teacherRepo) Create(teacher models.Teacher) (string, error) {
 	return id.String(), nil
 }
 
-func (s *teacherRepo) Update(teacher models.Teacher) (string, error) {
+func (s *teacherRepo) Update(ctx context.Context, teacher models.Teacher, id string) (string, error) {
 
 	query := `UPDATE teachers SET 
 	first_name = $1, 
-	last_name =$2, 
+	last_name = $2, 
 	subject_id = $3, 
 	start_working = $4,
 	phone = $5, 
 	mail = $6 WHERE id = $7`
 
-	_, err := s.db.Exec(context.Background(), query,
+	_, err := s.db.Exec(ctx, query,
 		teacher.FirstName,
 		teacher.LastName,
 		teacher.Subject_id,
 		teacher.Start_working,
 		teacher.Phone,
 		teacher.Mail,
-		teacher.Id)
+		id)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +74,7 @@ func (s *teacherRepo) Update(teacher models.Teacher) (string, error) {
 	return "", nil
 }
 
-func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error) {
+func (s *teacherRepo) GetAll(ctx context.Context, req models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error) {
 	resp := models.GetAllTeachersResponse{}
 	filter := ""
 	offest := (req.Page - 1) * req.Limit
@@ -91,7 +91,7 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
 				WHERE TRUE ` + filter + `
 				OFFSET $1 LIMIT $2
 					`
-	rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+	rows, err := s.db.Query(ctx, query, offest, req.Limit)
 	if err != nil {
 		return resp, err
 	}
@@ -112,7 +112,7 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
 		resp.Teachers = append(resp.Teachers, teacher)
 	}
 
-	err = s.db.QueryRow(context.Background(), `SELECT count(*) from teachers WHERE TRUE `+filter+``).Scan(&resp.Count)
+	err = s.db.QueryRow(ctx, `SELECT count(*) from teachers WHERE TRUE `+filter+``).Scan(&resp.Count)
 	if err != nil {
 		return resp, err
 	}
@@ -120,44 +120,45 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
 	return resp, nil
 }
 
-func (s *teacherRepo) GetTeacherById(teacher models.GetTeacher) (models.GetTeacher, error) {
+func (s *teacherRepo) GetTeacherById(ctx context.Context, id string) (models.GetTeacher, error) {
+	teacher := models.GetTeacher{}
+	var start_work sql.NullString
+
 	query := `SELECT id,
 					first_name,
 					last_name,
-					subject_id
+					subject_id,
+					to_char(start_working, 'YYYY-MM-DD'),
+					phone,
+					mail
 				FROM teachers
 				WHERE id = $1 LIMIT 1`
-	rows := s.db.QueryRow(context.Background(), query, teacher.Id)
+	rows := s.db.QueryRow(ctx, query, id)
 
 	err := rows.Scan(
 		&teacher.Id,
 		&teacher.FirstName,
 		&teacher.LastName,
-		&teacher.Subject_id)
+		&teacher.Subject_id,
+		&start_work,
+		&teacher.Phone,
+		&teacher.Mail)
+
 	if err != nil {
 		return teacher, err
 	}
+	teacher.Start_working = pkg.NullStringToString(start_work)
 
 	return teacher, nil
 }
 
-func (s *teacherRepo) Delete(id string) error {
+func (s *teacherRepo) Delete(ctx context.Context, id string) (string, error) {
 	query := `DELETE FROM teachers WHERE id = $1`
 
-	_, err := s.db.Exec(context.Background(), query, id)
+	_, err := s.db.Exec(ctx, query, id)
 
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return id, nil
 }
-
-// func (s *teacherRepo) UpdateActivity( models.Activity) (string, error) {
-// 	query := "UPDATE teachers SET isactive = $1 WHERE id = $2"
-// 	_, err := s.db.Exec(context.Background(), query, .IsActive, .Id)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return .Id, nil
-// }

@@ -1,26 +1,47 @@
 package storage
 
-import "backend_course/lms/api/models"
+import (
+	"backend_course/lms/api/models"
+	"context"
+)
 
 type IStorage interface {
 	CloseDB()
 	StudentStorage() StudentStorage
 	TeacherStorage() TeacherStorage
+	SubjectStorage() SubjectStorage
+	TimetableStorage() TimetableStorage
 }
 
 type StudentStorage interface {
-	Create(student models.Student) (string, error)
-	Update(student models.UpdateStudent, id string) (string, error)
-	UpdateActivity(student models.Activity) (string, error)
-	GetAll(student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error)
-	GetStudentById(student models.GetStudent) (models.GetStudent, error)
-	Delete(id string) error
+	Create(ctx context.Context, student models.Student) (string, error)
+	Update(ctx context.Context, student models.UpdateStudent, id string) (string, error)
+	UpdateActivity(ctx context.Context, student models.Activity) (string, error)
+	GetAll(ctx context.Context, student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error)
+	GetStudentById(ctx context.Context, external_id string) (models.GetStudent, error)
+	Delete(ctx context.Context, id string) (string, error)
 }
 
 type TeacherStorage interface {
-	Create(teacher models.Teacher) (string, error)
-	Update(teacher models.Teacher) (string, error)
-	GetAll(teacher models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error)
-	GetTeacherById(teacher models.GetTeacher) (models.GetTeacher, error)
-	Delete(id string) error
+	Create(ctx context.Context, teacher models.Teacher) (string, error)
+	Update(ctx context.Context, teacher models.Teacher, id string) (string, error)
+	GetAll(ctx context.Context, teacher models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error)
+	GetTeacherById(ctx context.Context, id string) (models.GetTeacher, error)
+	Delete(ctx context.Context, id string) (string, error)
+}
+
+type SubjectStorage interface {
+	Create(subject models.Subject) (string, error)
+	Update(subject models.Subject, id string) (string, error)
+	GetAll(req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error)
+	GetSubjectById(id string) (models.GetSubject, error)
+	Delete(id string) (string, error)
+}
+
+type TimetableStorage interface {
+	Create(subject models.Timetable) (string, error)
+	Update(subject models.Timetable, id string) (string, error)
+	// GetAll(req models.GetAllTimetablesRequest) (models.GetAllTimetablesResponse, error)
+	GetTimetableById(id string) (models.GetTimetable, error)
+	Delete(id string) (string, error)
 }

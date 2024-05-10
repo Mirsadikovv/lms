@@ -14,6 +14,11 @@ type Config struct {
 	PostgresPassword string
 	PostgresUser     string
 	PostgresDatabase string
+
+	SmtpPassword string
+	SmtpPort     string
+	SmtpServer   string
+	SmtpUsername string
 }
 
 func Load() Config {
@@ -26,8 +31,13 @@ func Load() Config {
 	cfg.PostgresHost = cast.ToString(getOrReturnDefault("POSTGRES_HOST", "localhost"))
 	cfg.PostgresPort = cast.ToInt(getOrReturnDefault("POSTGRES_PORT", 5432))
 	cfg.PostgresDatabase = cast.ToString(getOrReturnDefault("POSTGRES_DATABASE", "exam"))
-	cfg.PostgresUser = cast.ToString(getOrReturnDefault("POSTGRES_USER", "postgres"))
-	cfg.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", "1"))
+	cfg.PostgresUser = cast.ToString(getOrReturnDefault("POSTGRES_USER", "mirodil"))
+	cfg.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", "1212"))
+
+	cfg.SmtpPassword = cast.ToString(getOrReturnDefault("SMTP_PASSWORD", "mwzz ekyq ybqc wuzd"))
+	cfg.SmtpPort = cast.ToString(getOrReturnDefault("SMTP_PORT", "587"))
+	cfg.SmtpServer = cast.ToString(getOrReturnDefault("SMTP_SERVER", "smtp.gmail.com"))
+	cfg.SmtpUsername = cast.ToString(getOrReturnDefault("SMTP_USERNAME", "mirsadikovmirodil52@gmail.com"))
 
 	return cfg
 }

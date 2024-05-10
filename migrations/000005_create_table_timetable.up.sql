@@ -1,12 +1,12 @@
-CREATE TABLE subjects (
+CREATE TABLE IF NOT EXISTS subjects (
   id uuid PRIMARY KEY,
-  name string,
-  type string,
+  name VARCHAR,
+  type VARCHAR,
   created_at timestamp NOT NULL DEFAULT 'now()',
   updated timestamp
 );
 
-CREATE TABLE time_table (
+CREATE TABLE IF NOT EXISTS time_table (
   id uuid PRIMARY KEY,
   teacher_id uuid NOT NULL,
   student_id uuid NOT NULL,
@@ -15,10 +15,4 @@ CREATE TABLE time_table (
   to_date timestamp NOT NULL
 );
 
-ALTER TABLE teachers ADD FOREIGN KEY (subject_id) REFERENCES subjects (id);
 
-ALTER TABLE time_table ADD FOREIGN KEY (teacher_id) REFERENCES teachers (id);
-
-ALTER TABLE time_table ADD FOREIGN KEY (student_id) REFERENCES students (id);
-
-ALTER TABLE time_table ADD FOREIGN KEY (subject_id) REFERENCES subjects (id);

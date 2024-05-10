@@ -4,7 +4,7 @@ type Student struct {
 	Id          string `json:"id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
-	Age         int    `json:"age"`
+	Age         string `json:"age"`
 	External_id string `json:"external_id"`
 	Phone       string `json:"phone"`
 	Mail        string `json:"mail"`

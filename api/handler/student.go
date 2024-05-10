@@ -3,14 +3,11 @@ package handler
 import (
 	_ "backend_course/lms/api/docs"
 	"backend_course/lms/api/models"
-	"backend_course/lms/pkg/check"
 	"database/sql"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/cast"
 )
 
 // @Router		/student [post]
@@ -32,13 +29,13 @@ func (h Handler) CreateStudent(c *gin.Context) {
 		return
 	}
 
-	if err := check.ValidateYear(student.Age); err != nil {
-		handleResponse(c, "error while validating student age, year: "+strconv.Itoa(student.Age), http.StatusBadRequest, err.Error())
+	// if err := check.ValidateYear(student.Age); err != nil {
+	// 	handleResponse(c, "error while validating student age, year: "+strconv.Itoa(student.Age), http.StatusBadRequest, err.Error())
 
-		return
-	}
+	// 	return
+	// }
 
-	id, err := h.Service.Student().Create(student)
+	id, err := h.Service.Student().Create(c.Request.Context(), student)
 	if err != nil {
 		handleResponse(c, "error while creating student", http.StatusBadRequest, err.Error())
 		return
@@ -73,7 +70,7 @@ func (h Handler) UpdateStudent(c *gin.Context) {
 		handleResponse(c, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
-	id, err := h.Service.Student().Update(student, id)
+	id, err := h.Service.Student().Update(c.Request.Context(), student, id)
 	if err != nil {
 		handleResponse(c, "error while updating student", http.StatusInternalServerError, err.Error())
 		return
@@ -97,7 +94,7 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 
 	page, err := ParsePageQueryParam(c)
 	if err != nil {
-		handleResponse(c, "erro/studentr while parsing page", http.StatusBadRequest, err.Error())
+		handleResponse(c, "error while parsing page", http.StatusBadRequest, err.Error())
 		return
 	}
 	limit, err := ParseLimitQueryParam(c)
@@ -106,7 +103,7 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.Store.StudentStorage().GetAll(models.GetAllStudentsRequest{
+	resp, err := h.Service.Student().GetAllStudents(c.Request.Context(), models.GetAllStudentsRequest{
 		Search: search,
 		Page:   page,
 		Limit:  limit,
@@ -131,13 +128,9 @@ func (h Handler) GetAllStudents(c *gin.Context) {
 // @Failure		500  {object}  models.Response
 func (h Handler) GetStudent(c *gin.Context) {
 
-	student := models.GetStudent{}
-
 	id := c.Param("external_id")
 
-	student.External_id = cast.ToString(id)
-
-	resp, err := h.Service.Student().GetStudentById(student)
+	resp, err := h.Service.Student().GetStudentById(c.Request.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			handleResponse(c, "student not found", http.StatusNotFound, err.Error())
@@ -167,7 +160,7 @@ func (h Handler) DeleteStudent(c *gin.Context) {
 		return
 	}
 
-	err := h.Service.Student().Delete(id)
+	err := h.Service.Student().Delete(c.Request.Context(), id)
 	if err != nil {
 		handleResponse(c, "error while deleting student", http.StatusInternalServerError, err.Error())
 		return
@@ -202,7 +195,7 @@ func (h Handler) UpdateStudentActivity(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.Store.StudentStorage().UpdateActivity(activity); err != nil {
+	if _, err := h.Service.Student().UpdateActivity(c.Request.Context(), activity); err != nil {
 		handleResponse(c, "error while updating student activity", http.StatusInternalServerError, err.Error())
 		return
 	}
