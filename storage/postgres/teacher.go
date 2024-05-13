@@ -5,6 +5,7 @@ import (
 	"backend_course/lms/pkg"
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -161,4 +162,41 @@ func (s *teacherRepo) Delete(ctx context.Context, id string) (string, error) {
 		return "", err
 	}
 	return id, nil
+}
+
+func (s *teacherRepo) CheckLessonNow(ctx context.Context, id string) (models.TeacherLessonNow, error) {
+	lessonInfo := models.TeacherLessonNow{}
+	teacherInfo := models.TeacherInfo{}
+	var timeUntilEnd sql.NullString
+	query := `
+	SELECT 	sub.name AS subject,
+			t.first_name,
+			t.last_name,
+			t.phone,
+			NOW() - tt.to_date
+		FROM 
+			time_table tt
+		JOIN 
+			teachers t ON tt.teacher_id = t.id
+		JOIN 
+			students s ON tt.student_id = s.id
+		JOIN 
+			subjects sub ON tt.subject_id = sub.id 
+		WHERE t.id = $1 AND from_date <= NOW() AND to_date >= NOW() LIMIT 1`
+
+	rows := s.db.QueryRow(ctx, query, id)
+	fmt.Println(id)
+	err := rows.Scan(
+		&lessonInfo.SubjectName,
+		&teacherInfo.FirstName,
+		&teacherInfo.LastName,
+		&teacherInfo.Phone,
+		&timeUntilEnd)
+	if err != nil {
+		return lessonInfo, err
+	}
+	lessonInfo.Teacher = teacherInfo
+	lessonInfo.TimeUntilEnd = pkg.NullStringToString(timeUntilEnd)
+
+	return lessonInfo, nil
 }

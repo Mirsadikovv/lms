@@ -238,7 +238,7 @@ func (s *studentRepo) Create(ctx context.Context, student models.Student) (strin
         <span class="cov8" title="1">return id.String(), nil</span>
 }
 
-func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, error) <span class="cov8" title="1">{
+func (s *studentRepo) Update(ctx context.Context, student models.UpdateStudent, id string) (string, error) <span class="cov8" title="1">{
 
         query := `UPDATE students SET first_name = $1, 
         last_name =$2, 
@@ -249,7 +249,7 @@ func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, e
         pasword = $7,
         updated = 'NOW()' WHERE id = $8`
 
-        _, err := s.db.Exec(context.Background(), query,
+        _, err := s.db.Exec(ctx, query,
                 student.FirstName,
                 student.LastName,
                 student.Age,
@@ -265,7 +265,7 @@ func (s *studentRepo) Update(student models.UpdateStudent, id string) (string, e
         <span class="cov8" title="1">return "", nil</span>
 }
 
-func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) <span class="cov0" title="0">{
+func (s *studentRepo) GetAll(ctx context.Context, req models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error) <span class="cov0" title="0">{
         resp := models.GetAllStudentsResponse{}
         var created sql.NullString
         filter := ""
@@ -284,7 +284,7 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
                                 WHERE TRUE ` + filter + `
                                 OFFSET $1 LIMIT $2
                                         `
-        rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+        rows, err := s.db.Query(ctx, query, offest, req.Limit)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -309,7 +309,7 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
                 resp.Students = append(resp.Students, student)</span>
         }
 
-        <span class="cov0" title="0">err = s.db.QueryRow(context.Background(), `SELECT count(*) from students WHERE TRUE `+filter+``).Scan(&amp;resp.Count)
+        <span class="cov0" title="0">err = s.db.QueryRow(ctx, `SELECT count(*) from students WHERE TRUE `+filter+``).Scan(&amp;resp.Count)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -317,7 +317,7 @@ func (s *studentRepo) GetAll(req models.GetAllStudentsRequest) (models.GetAllStu
         <span class="cov0" title="0">return resp, nil</span>
 }
 
-func (s *studentRepo) GetStudentById(external_id string) (models.GetStudent, error) <span class="cov8" title="1">{
+func (s *studentRepo) GetStudentById(ctx context.Context, external_id string) (models.GetStudent, error) <span class="cov8" title="1">{
         student := models.GetStudent{}
         var updated sql.NullString
         query := `SELECT id,
@@ -331,7 +331,7 @@ func (s *studentRepo) GetStudentById(external_id string) (models.GetStudent, err
                                         to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
                                 FROM students
                                 WHERE external_id = $1 LIMIT 1`
-        rows := s.db.QueryRow(context.Background(), query, external_id)
+        rows := s.db.QueryRow(ctx, query, external_id)
         fmt.Println(external_id)
         err := rows.Scan(
                 &amp;student.Id,
@@ -351,10 +351,10 @@ func (s *studentRepo) GetStudentById(external_id string) (models.GetStudent, err
         return student, nil</span>
 }
 
-func (s *studentRepo) Delete(id string) (string, error) <span class="cov8" title="1">{
+func (s *studentRepo) Delete(ctx context.Context, id string) (string, error) <span class="cov8" title="1">{
         query := `DELETE FROM students WHERE id = $1`
 
-        _, err := s.db.Exec(context.Background(), query, id)
+        _, err := s.db.Exec(ctx, query, id)
 
         if err != nil </span><span class="cov0" title="0">{
                 return "", err
@@ -362,9 +362,9 @@ func (s *studentRepo) Delete(id string) (string, error) <span class="cov8" title
         <span class="cov8" title="1">return id, nil</span>
 }
 
-func (s *studentRepo) UpdateActivity(student models.Activity) (string, error) <span class="cov8" title="1">{
+func (s *studentRepo) UpdateActivity(ctx context.Context, student models.Activity) (string, error) <span class="cov8" title="1">{
         query := "UPDATE students SET isactive = $1 WHERE id = $2"
-        _, err := s.db.Exec(context.Background(), query, student.IsActive, student.Id)
+        _, err := s.db.Exec(ctx, query, student.IsActive, student.Id)
         if err != nil </span><span class="cov0" title="0">{
                 return "", err
         }</span>
@@ -395,7 +395,7 @@ func NewSubject(db *pgxpool.Pool) subjectRepo <span class="cov8" title="1">{
         }
 }</span>
 
-func (s *subjectRepo) Create(subject models.Subject) (string, error) <span class="cov8" title="1">{
+func (s *subjectRepo) Create(ctx context.Context, subject models.Subject) (string, error) <span class="cov8" title="1">{
 
         id := uuid.New()
 
@@ -405,7 +405,7 @@ func (s *subjectRepo) Create(subject models.Subject) (string, error) <span class
                 type,
                 created_at) VALUES ($1, $2, $3, 'NOW()') `
 
-        _, err := s.db.Exec(context.Background(),
+        _, err := s.db.Exec(ctx,
                 query,
                 id,
                 subject.Name,
@@ -418,13 +418,13 @@ func (s *subjectRepo) Create(subject models.Subject) (string, error) <span class
         <span class="cov8" title="1">return id.String(), nil</span>
 }
 
-func (s *subjectRepo) Update(subject models.Subject, id string) (string, error) <span class="cov8" title="1">{
+func (s *subjectRepo) Update(ctx context.Context, subject models.Subject, id string) (string, error) <span class="cov8" title="1">{
 
         query := `UPDATE subjects SET name = $1, 
         type =$2, 
         updated = 'NOW()' WHERE id = $3`
 
-        _, err := s.db.Exec(context.Background(), query,
+        _, err := s.db.Exec(ctx, query,
                 subject.Name,
                 subject.Type,
                 id)
@@ -435,7 +435,7 @@ func (s *subjectRepo) Update(subject models.Subject, id string) (string, error) 
         <span class="cov8" title="1">return "", nil</span>
 }
 
-func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) <span class="cov8" title="1">{
+func (s *subjectRepo) GetSubjectById(ctx context.Context, id string) (models.GetSubject, error) <span class="cov8" title="1">{
 
         var (
                 updated sql.NullString
@@ -448,7 +448,7 @@ func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) <span
                                         to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
                                 FROM subjects
                                 WHERE id = $1 LIMIT 1`
-        rows := s.db.QueryRow(context.Background(), query, id)
+        rows := s.db.QueryRow(ctx, query, id)
 
         err := rows.Scan(
                 &amp;subject.Id,
@@ -464,19 +464,19 @@ func (s *subjectRepo) GetSubjectById(id string) (models.GetSubject, error) <span
         return subject, nil</span>
 }
 
-func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error) <span class="cov0" title="0">{
+func (s *subjectRepo) GetAll(ctx context.Context, req models.GetAllSubjectsRequest) (models.GetAllSubjectsResponse, error) <span class="cov0" title="0">{
         resp := models.GetAllSubjectsResponse{}
         var updated sql.NullString
         offest := (req.Page - 1) * req.Limit
         query := `SELECT id,
                                         name,
                                         type,
-                                        to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM')
+                                        to_char(created_at, 'YYYY-MM-DD HH:MM:SS AM'),
                                         to_char(updated, 'YYYY-MM-DD HH:MM:SS AM')
                                 FROM subjects
                                 OFFSET $1 LIMIT $2
                                         `
-        rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+        rows, err := s.db.Query(ctx, query, offest, req.Limit)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -496,7 +496,7 @@ func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSub
                 resp.Subjects = append(resp.Subjects, subject)</span>
         }
 
-        <span class="cov0" title="0">err = s.db.QueryRow(context.Background(), `SELECT count(*) from subjects`).Scan(&amp;resp.Count)
+        <span class="cov0" title="0">err = s.db.QueryRow(ctx, `SELECT count(*) from subjects`).Scan(&amp;resp.Count)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -504,10 +504,10 @@ func (s *subjectRepo) GetAll(req models.GetAllSubjectsRequest) (models.GetAllSub
         <span class="cov0" title="0">return resp, nil</span>
 }
 
-func (s *subjectRepo) Delete(id string) (string, error) <span class="cov8" title="1">{
+func (s *subjectRepo) Delete(ctx context.Context, id string) (string, error) <span class="cov8" title="1">{
         query := `DELETE FROM subjects WHERE id = $1`
 
-        _, err := s.db.Exec(context.Background(), query, id)
+        _, err := s.db.Exec(ctx, query, id)
 
         if err != nil </span><span class="cov0" title="0">{
                 return "", err
@@ -538,7 +538,7 @@ func NewTeacher(db *pgxpool.Pool) teacherRepo <span class="cov8" title="1">{
         }
 }</span>
 
-func (s *teacherRepo) Create(teacher models.Teacher) (string, error) <span class="cov8" title="1">{
+func (s *teacherRepo) Create(ctx context.Context, teacher models.Teacher) (string, error) <span class="cov8" title="1">{
 
         id := uuid.New()
 
@@ -551,7 +551,7 @@ func (s *teacherRepo) Create(teacher models.Teacher) (string, error) <span class
                 phone,
                 mail) VALUES ($1, $2, $3, $4, $5, $6, $7) `
 
-        _, err := s.db.Exec(context.Background(), query,
+        _, err := s.db.Exec(ctx, query,
                 id,
                 teacher.FirstName,
                 teacher.LastName,
@@ -567,7 +567,7 @@ func (s *teacherRepo) Create(teacher models.Teacher) (string, error) <span class
         <span class="cov8" title="1">return id.String(), nil</span>
 }
 
-func (s *teacherRepo) Update(teacher models.Teacher, id string) (string, error) <span class="cov8" title="1">{
+func (s *teacherRepo) Update(ctx context.Context, teacher models.Teacher, id string) (string, error) <span class="cov8" title="1">{
 
         query := `UPDATE teachers SET 
         first_name = $1, 
@@ -577,7 +577,7 @@ func (s *teacherRepo) Update(teacher models.Teacher, id string) (string, error) 
         phone = $5, 
         mail = $6 WHERE id = $7`
 
-        _, err := s.db.Exec(context.Background(), query,
+        _, err := s.db.Exec(ctx, query,
                 teacher.FirstName,
                 teacher.LastName,
                 teacher.Subject_id,
@@ -592,7 +592,7 @@ func (s *teacherRepo) Update(teacher models.Teacher, id string) (string, error) 
         <span class="cov8" title="1">return "", nil</span>
 }
 
-func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error) <span class="cov0" title="0">{
+func (s *teacherRepo) GetAll(ctx context.Context, req models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error) <span class="cov0" title="0">{
         resp := models.GetAllTeachersResponse{}
         filter := ""
         offest := (req.Page - 1) * req.Limit
@@ -609,7 +609,7 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
                                 WHERE TRUE ` + filter + `
                                 OFFSET $1 LIMIT $2
                                         `
-        rows, err := s.db.Query(context.Background(), query, offest, req.Limit)
+        rows, err := s.db.Query(ctx, query, offest, req.Limit)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -630,7 +630,7 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
                 resp.Teachers = append(resp.Teachers, teacher)</span>
         }
 
-        <span class="cov0" title="0">err = s.db.QueryRow(context.Background(), `SELECT count(*) from teachers WHERE TRUE `+filter+``).Scan(&amp;resp.Count)
+        <span class="cov0" title="0">err = s.db.QueryRow(ctx, `SELECT count(*) from teachers WHERE TRUE `+filter+``).Scan(&amp;resp.Count)
         if err != nil </span><span class="cov0" title="0">{
                 return resp, err
         }</span>
@@ -638,7 +638,7 @@ func (s *teacherRepo) GetAll(req models.GetAllTeachersRequest) (models.GetAllTea
         <span class="cov0" title="0">return resp, nil</span>
 }
 
-func (s *teacherRepo) GetTeacherById(id string) (models.GetTeacher, error) <span class="cov8" title="1">{
+func (s *teacherRepo) GetTeacherById(ctx context.Context, id string) (models.GetTeacher, error) <span class="cov8" title="1">{
         teacher := models.GetTeacher{}
         var start_work sql.NullString
 
@@ -651,7 +651,7 @@ func (s *teacherRepo) GetTeacherById(id string) (models.GetTeacher, error) <span
                                         mail
                                 FROM teachers
                                 WHERE id = $1 LIMIT 1`
-        rows := s.db.QueryRow(context.Background(), query, id)
+        rows := s.db.QueryRow(ctx, query, id)
 
         err := rows.Scan(
                 &amp;teacher.Id,
@@ -670,10 +670,10 @@ func (s *teacherRepo) GetTeacherById(id string) (models.GetTeacher, error) <span
         return teacher, nil</span>
 }
 
-func (s *teacherRepo) Delete(id string) (string, error) <span class="cov8" title="1">{
+func (s *teacherRepo) Delete(ctx context.Context, id string) (string, error) <span class="cov8" title="1">{
         query := `DELETE FROM teachers WHERE id = $1`
 
-        _, err := s.db.Exec(context.Background(), query, id)
+        _, err := s.db.Exec(ctx, query, id)
 
         if err != nil </span><span class="cov0" title="0">{
                 return "", err

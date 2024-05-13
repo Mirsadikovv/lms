@@ -203,3 +203,30 @@ func (h Handler) UpdateStudentActivity(c *gin.Context) {
 
 	handleResponse(c, h.Log, "Updated student activity successfully", http.StatusOK, id)
 }
+
+// @Router		/student/getlesson/{id} [GET]
+// @Summary		get lesson now
+// @Description	This api get lesson now and returns its
+// @Tags		student
+// @Accept		json
+// @Produce		json
+// @Param 		id path string true "id"
+// @Success		200  {object}  models.Response
+// @Failure		400  {object}  models.Response
+// @Failure		404  {object}  models.Response
+// @Failure		500  {object}  models.Response
+func (h Handler) StudentCheckLessonNow(c *gin.Context) {
+
+	id := c.Param("id")
+
+	resp, err := h.Service.Student().CheckLessonNow(c.Request.Context(), id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			handleResponse(c, h.Log, "there is no lessons now", http.StatusNotFound, nil)
+			return
+		}
+		handleResponse(c, h.Log, "error while getting lesson now", http.StatusInternalServerError, err.Error())
+		return
+	}
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
+}

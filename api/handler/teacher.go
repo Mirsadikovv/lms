@@ -166,3 +166,30 @@ func (h Handler) DeleteTeacher(c *gin.Context) {
 
 	handleResponse(c, h.Log, "Deleted successfully", http.StatusOK, nil)
 }
+
+// @Router		/teacher/getlesson/{id} [get]
+// @Summary		get lesson now
+// @Description	This api get lesson now and returns its
+// @Tags		teacher
+// @Accept		json
+// @Produce		json
+// @Param 		id path string true "id"
+// @Success		200  {object}  models.Response
+// @Failure		400  {object}  models.Response
+// @Failure		404  {object}  models.Response
+// @Failure		500  {object}  models.Response
+func (h Handler) TeacherCheckLessonNow(c *gin.Context) {
+
+	id := c.Param("id")
+
+	resp, err := h.Service.Teacher().CheckLessonNow(c.Request.Context(), id)
+	if err != nil {
+		// if err == sql.ErrNoRows {
+		// 	handleResponse(c, h.Log, "lesson not found", http.StatusNotFound, err.Error())
+		// 	return
+		// }
+		handleResponse(c, h.Log, "error while getting lesson now", http.StatusInternalServerError, err.Error())
+		return
+	}
+	handleResponse(c, h.Log, "request successful", http.StatusOK, resp)
+}

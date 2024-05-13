@@ -32,3 +32,15 @@ type GetAllTeachersResponse struct {
 	Teachers []GetTeacher `json:"teachers"`
 	Count    int64        `json:"count"`
 }
+
+type TeacherInfo struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+}
+
+type TeacherLessonNow struct {
+	SubjectName  string      `json:"subject_name,omitempty"`
+	Teacher      TeacherInfo `json:"teacher_info,omitempty"`
+	TimeUntilEnd string      `json:"time_until_end,omitempty"`
+}

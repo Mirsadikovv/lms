@@ -68,3 +68,14 @@ func (s teacherService) Delete(ctx context.Context, id string) error {
 	// business logic
 	return nil
 }
+
+func (s teacherService) CheckLessonNow(ctx context.Context, id string) (models.TeacherLessonNow, error) {
+	// business logic
+	resp, err := s.storage.TeacherStorage().CheckLessonNow(ctx, id)
+	if err != nil {
+		fmt.Println("error while checking lesson now, err: ", err)
+		return resp, err
+	}
+	// business logic
+	return resp, nil
+}

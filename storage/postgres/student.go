@@ -3,6 +3,7 @@ package postgres
 import (
 	"backend_course/lms/api/models"
 	"backend_course/lms/pkg"
+	"backend_course/lms/pkg/hash"
 	"context"
 	"database/sql"
 	"fmt"
@@ -24,6 +25,10 @@ func NewStudent(db *pgxpool.Pool) studentRepo {
 func (s *studentRepo) Create(ctx context.Context, student models.Student) (string, error) {
 
 	id := uuid.New()
+	pasword, err := hash.HashPassword(student.Pasword)
+	if err != nil {
+		return "", err
+	}
 
 	query := ` INSERT INTO students (
 		id,
@@ -35,7 +40,7 @@ func (s *studentRepo) Create(ctx context.Context, student models.Student) (strin
 		mail,
 		pasword) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
 
-	_, err := s.db.Exec(ctx,
+	_, err = s.db.Exec(ctx,
 		query,
 		id,
 		student.FirstName,
@@ -44,7 +49,7 @@ func (s *studentRepo) Create(ctx context.Context, student models.Student) (strin
 		student.External_id,
 		student.Phone,
 		student.Mail,
-		student.Pasword)
+		pasword)
 
 	if err != nil {
 		return "", err
@@ -54,6 +59,10 @@ func (s *studentRepo) Create(ctx context.Context, student models.Student) (strin
 }
 
 func (s *studentRepo) Update(ctx context.Context, student models.UpdateStudent, id string) (string, error) {
+	pasword, err := hash.HashPassword(student.Pasword)
+	if err != nil {
+		return "", err
+	}
 
 	query := `UPDATE students SET first_name = $1, 
 	last_name =$2, 
@@ -64,14 +73,14 @@ func (s *studentRepo) Update(ctx context.Context, student models.UpdateStudent, 
 	pasword = $7,
 	updated = 'NOW()' WHERE id = $8`
 
-	_, err := s.db.Exec(ctx, query,
+	_, err = s.db.Exec(ctx, query,
 		student.FirstName,
 		student.LastName,
 		student.Age,
 		student.External_id,
 		student.Phone,
 		student.Mail,
-		student.Pasword,
+		pasword,
 		id)
 	if err != nil {
 		return "", err
@@ -185,4 +194,35 @@ func (s *studentRepo) UpdateActivity(ctx context.Context, student models.Activit
 	}
 
 	return student.Id, nil
+}
+
+func (s *studentRepo) CheckLessonNow(ctx context.Context, id string) (models.StudentLessonNow, error) {
+	lessonInfo := models.StudentLessonNow{}
+	var timeUntilEnd sql.NullString
+	query := `
+	SELECT 	sub.name AS subject,
+			t.first_name AS teacher,
+			NOW() - tt.to_date
+		FROM 
+			time_table tt
+		JOIN 
+			teachers t ON tt.teacher_id = t.id
+		JOIN 
+			students s ON tt.student_id = s.id
+		JOIN 
+			subjects sub ON tt.subject_id = sub.id 
+		WHERE s.id = $1 AND from_date <= NOW() AND to_date >= NOW() LIMIT 1`
+	rows := s.db.QueryRow(ctx, query, id)
+	fmt.Println(id)
+	err := rows.Scan(
+		&lessonInfo.SubjectName,
+		&lessonInfo.TeacherName,
+		&timeUntilEnd)
+
+	if err != nil {
+		return lessonInfo, err
+	}
+	lessonInfo.TimeUntilEnd = pkg.NullStringToString(timeUntilEnd)
+
+	return lessonInfo, nil
 }

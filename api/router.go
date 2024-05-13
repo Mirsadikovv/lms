@@ -33,12 +33,14 @@ func New(service service.IServiceManager, log logger.ILogger) *gin.Engine {
 	r.GET("/student", authMiddleware, h.GetAllStudents)
 	r.GET("student/:external_id", h.GetStudent)
 	r.DELETE("/student/:id", h.DeleteStudent)
+	r.GET("student/getlesson/:id", h.StudentCheckLessonNow)
 
 	r.POST("/teacher", h.CreateTeacher)
 	r.PUT("/teacher/update/:id", h.UpdateTeacher)
 	r.GET("/teacher", h.GetAllTeachers)
-	r.GET("teacher/:id", h.GetTeacher)
+	r.GET("/teacher/:id", h.GetTeacher)
 	r.DELETE("/teacher/:id", h.DeleteTeacher)
+	r.GET("/teacher/getlesson/:id", h.TeacherCheckLessonNow)
 
 	r.POST("/subject", h.CreateSubject)
 	r.PUT("/subject/update/:id", h.UpdateSubject)
@@ -54,6 +56,7 @@ func New(service service.IServiceManager, log logger.ILogger) *gin.Engine {
 	return r
 }
 
+// err := hash.CompareHashAndPassword(c.GetHeader("Authorization"),hash.HashPassword(c.))
 func authMiddleware(c *gin.Context) {
 	if c.GetHeader("Authorization") != "secret" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})

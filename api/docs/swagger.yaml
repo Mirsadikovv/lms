@@ -248,6 +248,39 @@ paths:
       summary: updates student activity
       tags:
       - student
+  /student/getlesson/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This api get lesson now and returns its
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: get lesson now
+      tags:
+      - student
   /student/update/{id}:
     put:
       consumes:
@@ -572,6 +605,39 @@ paths:
           schema:
             $ref: '#/definitions/models.Response'
       summary: get one teacher
+      tags:
+      - teacher
+  /teacher/getlesson/{id}:
+    get:
+      consumes:
+      - application/json
+      description: This api get lesson now and returns its
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: get lesson now
       tags:
       - teacher
   /teacher/update/{id}:

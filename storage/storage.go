@@ -20,6 +20,7 @@ type StudentStorage interface {
 	GetAll(ctx context.Context, student models.GetAllStudentsRequest) (models.GetAllStudentsResponse, error)
 	GetStudentById(ctx context.Context, external_id string) (models.GetStudent, error)
 	Delete(ctx context.Context, id string) (string, error)
+	CheckLessonNow(ctx context.Context, id string) (models.StudentLessonNow, error)
 }
 
 type TeacherStorage interface {
@@ -28,6 +29,7 @@ type TeacherStorage interface {
 	GetAll(ctx context.Context, teacher models.GetAllTeachersRequest) (models.GetAllTeachersResponse, error)
 	GetTeacherById(ctx context.Context, id string) (models.GetTeacher, error)
 	Delete(ctx context.Context, id string) (string, error)
+	CheckLessonNow(ctx context.Context, id string) (models.TeacherLessonNow, error)
 }
 
 type SubjectStorage interface {

@@ -50,3 +50,9 @@ type Activity struct {
 	Id       string `json:"id"`
 	IsActive bool   `json:"activity"`
 }
+
+type StudentLessonNow struct {
+	SubjectName  string `json:"subject_name,omitempty"`
+	TeacherName  string `json:"teacher_name,omitempty"`
+	TimeUntilEnd string `json:"time_until_end,omitempty"`
+}

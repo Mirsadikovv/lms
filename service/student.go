@@ -79,3 +79,14 @@ func (s studentService) UpdateActivity(ctx context.Context, student models.Activ
 	// business logic
 	return id, nil
 }
+
+func (s studentService) CheckLessonNow(ctx context.Context, id string) (models.StudentLessonNow, error) {
+	// business logic
+	resp, err := s.storage.StudentStorage().CheckLessonNow(ctx, id)
+	if err != nil {
+		fmt.Println("error while checking lesson now, err: ", err)
+		return resp, err
+	}
+	// business logic
+	return resp, nil
+}
