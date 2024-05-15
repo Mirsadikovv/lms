@@ -8,6 +8,7 @@ type Teacher struct {
 	Start_working string `json:"start_working"`
 	Phone         string `json:"phone"`
 	Mail          string `json:"mail"`
+	Password      string `json:"password"`
 }
 
 type GetTeacher struct {

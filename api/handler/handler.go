@@ -36,10 +36,10 @@ func handleResponse(c *gin.Context, log logger.ILogger, msg string, statusCode i
 		resp.Description = config.ERR_REDIRECTION
 	} else if statusCode >= 400 && statusCode <= 499 {
 		resp.Description = config.ERR_BADREQUEST
-		log.Error("!!!!!!!! BAD REQUEST !!!!!!!!", logger.Any("error: ", msg), logger.Any("data: ", data))
+		log.Error(">>> BAD REQUEST <<<", logger.Any("error: ", msg), logger.Any("data: ", data))
 	} else {
 		resp.Description = config.ERR_INTERNAL_SERVER
-		log.Error("!!!!!!!! ERR_INTERNAL_SERVER !!!!!!!!", logger.Any("error: ", msg))
+		log.Error(">>> ERR_INTERNAL_SERVER <<<", logger.Any("error: ", msg))
 
 	}
 

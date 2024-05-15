@@ -32,7 +32,8 @@ func (s *teacherRepo) Create(ctx context.Context, teacher models.Teacher) (strin
 		subject_id,
 		start_working,
 		phone,
-		mail) VALUES ($1, $2, $3, $4, $5, $6, $7) `
+		mail,
+		pasword) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
 
 	_, err := s.db.Exec(ctx, query,
 		id,
@@ -41,7 +42,8 @@ func (s *teacherRepo) Create(ctx context.Context, teacher models.Teacher) (strin
 		teacher.Subject_id,
 		teacher.Start_working,
 		teacher.Phone,
-		teacher.Mail)
+		teacher.Mail,
+		teacher.Password)
 
 	if err != nil {
 		return "", err
@@ -199,4 +201,60 @@ func (s *teacherRepo) CheckLessonNow(ctx context.Context, id string) (models.Tea
 	lessonInfo.TimeUntilEnd = pkg.NullStringToString(timeUntilEnd)
 
 	return lessonInfo, nil
+}
+
+func (s *teacherRepo) GetTeacherByLogin(ctx context.Context, login string) (models.Teacher, error) {
+
+	query := `
+	SELECT
+		id,
+		first_name,
+		last_name,
+		subject_id,
+		TO_CHAR(start_working,'YYYY-MM-DD HH:MM:SS'),
+		phone,
+		mail,
+		TO_CHAR(created_at,'YYYY-MM-DD HH:MM:SS'),
+		pasword
+	FROM
+		teachers
+	WHERE
+		mail = $1;
+`
+	row := s.db.QueryRow(ctx, query, login)
+
+	var (
+		teacher models.Teacher
+		firstName,
+		lastName,
+		subjectId,
+		startWorking,
+		phone,
+		mail,
+		createdAt sql.NullString
+	)
+
+	err := row.Scan(
+		&teacher.Id,
+		&firstName,
+		&lastName,
+		&subjectId,
+		&startWorking,
+		&phone,
+		&mail,
+		&createdAt,
+		&teacher.Password,
+	)
+
+	teacher.FirstName = pkg.NullStringToString(firstName)
+	teacher.LastName = pkg.NullStringToString(lastName)
+	teacher.Subject_id = pkg.NullStringToString(subjectId)
+	teacher.Start_working = pkg.NullStringToString(startWorking)
+	teacher.Phone = pkg.NullStringToString(phone)
+	teacher.Mail = pkg.NullStringToString(mail)
+
+	if err != nil {
+		return teacher, err
+	}
+	return teacher, nil
 }

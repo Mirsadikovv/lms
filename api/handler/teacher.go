@@ -3,6 +3,7 @@ package handler
 import (
 	_ "backend_course/lms/api/docs"
 	"backend_course/lms/api/models"
+	"backend_course/lms/pkg/check"
 	"database/sql"
 	"net/http"
 
@@ -26,6 +27,17 @@ func (h Handler) CreateTeacher(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&teacher); err != nil {
 		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := check.ValidatePassword(teacher.Password); err != nil {
+		handleResponse(c, h.Log, "error while validating teacher password, password: "+teacher.Password, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := check.ValidatePhone(teacher.Phone); err != nil {
+		handleResponse(c, h.Log, "error while validating teacher phone, phone: "+teacher.Phone, http.StatusBadRequest, err.Error())
+
 		return
 	}
 
@@ -65,6 +77,18 @@ func (h Handler) UpdateTeacher(c *gin.Context) {
 		handleResponse(c, h.Log, "error while reading request body", http.StatusBadRequest, err.Error())
 		return
 	}
+
+	if err := check.ValidatePassword(teacher.Password); err != nil {
+		handleResponse(c, h.Log, "error while validating teacher password, password: "+teacher.Password, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := check.ValidatePhone(teacher.Phone); err != nil {
+		handleResponse(c, h.Log, "error while validating teacher phone, phone: "+teacher.Phone, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
 	id, err := h.Service.Teacher().Update(c.Request.Context(), teacher, id)
 	if err != nil {
 		handleResponse(c, h.Log, "error while updating teacher", http.StatusInternalServerError, err.Error())

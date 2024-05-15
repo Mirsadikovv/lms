@@ -202,7 +202,7 @@ func (s *studentRepo) CheckLessonNow(ctx context.Context, id string) (models.Stu
 	query := `
 	SELECT 	sub.name AS subject,
 			t.first_name AS teacher,
-			NOW() - tt.to_date
+			tt.to_date - NOW()
 		FROM 
 			time_table tt
 		JOIN 
@@ -212,6 +212,7 @@ func (s *studentRepo) CheckLessonNow(ctx context.Context, id string) (models.Stu
 		JOIN 
 			subjects sub ON tt.subject_id = sub.id 
 		WHERE s.id = $1 AND from_date <= NOW() AND to_date >= NOW() LIMIT 1`
+
 	rows := s.db.QueryRow(ctx, query, id)
 	fmt.Println(id)
 	err := rows.Scan(

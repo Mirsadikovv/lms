@@ -21,7 +21,8 @@ func TestCreateTeacher(t *testing.T) {
 		Subject_id:    "2e23f8ad-7d20-443e-819f-780c0545003b",
 		Start_working: faker.Date(),
 		Phone:         faker.Phonenumber(),
-		Mail:          faker.Email()}
+		Mail:          faker.Email(),
+		Password:      faker.Password()}
 
 	_, err := teacherRepo.Create(context.Background(), reqTeacher)
 	if assert.NoError(t, err) {
