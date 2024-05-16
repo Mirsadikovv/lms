@@ -3,12 +3,17 @@ package service
 import (
 	"backend_course/lms/api/models"
 	"backend_course/lms/config"
-	"backend_course/lms/pkg/hash"
+	"backend_course/lms/pkg"
+	smtp "backend_course/lms/pkg/helper"
 	"backend_course/lms/pkg/jwt"
 	"backend_course/lms/pkg/logger"
 	"backend_course/lms/storage"
 	"context"
 	"errors"
+	"fmt"
+	"time"
+
+	"github.com/jackc/pgx"
 )
 
 type authService struct {
@@ -30,9 +35,9 @@ func (s authService) TeacherLogin(ctx context.Context, req models.LoginRequest) 
 		return resp, err
 	}
 
-	if err = hash.CompareHashAndPassword(teacher.Password, req.Password); err != nil {
-		return resp, errors.New("password doesn't match")
-	}
+	// if err = hash.CompareHashAndPassword(teacher.Password, req.Password); err != nil {
+	// 	return resp, errors.New("password doesn't match")
+	// }
 
 	m := make(map[interface{}]interface{})
 	m["user_id"] = teacher.Id
@@ -45,4 +50,28 @@ func (s authService) TeacherLogin(ctx context.Context, req models.LoginRequest) 
 	resp.RefreshToken = refreshToken
 
 	return resp, nil
+}
+
+func (s authService) TeacherRegister(ctx context.Context, req models.RegisterRequest) error {
+
+	_, err := s.storage.TeacherStorage().GetTeacherByLogin(ctx, req.Mail)
+	if err == pgx.ErrNoRows {
+		otp := pkg.GenerateOTP()
+		msg := fmt.Sprintf("Your OTP: %v. DON'T give anyone", otp)
+		err := s.storage.Redis().SetX(ctx, req.Mail, otp, time.Minute*2)
+		if err != nil {
+			return err
+		}
+		err = smtp.SendMail(req.Mail, msg)
+		if err != nil {
+			return err
+		}
+
+	} else if err != nil {
+		return err
+	} else {
+		return errors.New("email already exists")
+	}
+
+	return nil
 }

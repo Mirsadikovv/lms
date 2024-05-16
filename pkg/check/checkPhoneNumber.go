@@ -20,7 +20,7 @@ import (
 
 func ValidatePhone(phone string) error {
 	phoneRegex := regexp.MustCompile(`^\+?998\d{9}$`)
-	if phoneRegex.MatchString(phone) {
+	if !phoneRegex.MatchString(phone) {
 		return errors.New("phone is not valid")
 	}
 	return nil

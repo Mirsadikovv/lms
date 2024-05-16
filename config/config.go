@@ -20,6 +20,10 @@ type Config struct {
 	SmtpPort     string
 	SmtpServer   string
 	SmtpUsername string
+
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
 }
 
 func Load() Config {
@@ -40,6 +44,10 @@ func Load() Config {
 	cfg.SmtpPort = cast.ToString(getOrReturnDefault("SMTP_PORT", "587"))
 	cfg.SmtpServer = cast.ToString(getOrReturnDefault("SMTP_SERVER", "smtp.gmail.com"))
 	cfg.SmtpUsername = cast.ToString(getOrReturnDefault("SMTP_USERNAME", "mirsadikovmirodil52@gmail.com"))
+
+	cfg.RedisHost = "localhost" //cast.ToString(getOrReturnDefault("REDIS_HOST", "localhost"))
+	cfg.RedisPort = "6379"      //cast.ToString(getOrReturnDefault("REDIS_PORT", "6379"))
+	cfg.RedisPassword = cast.ToString(getOrReturnDefault("REDIS_PASSWORD", "password"))
 
 	return cfg
 }

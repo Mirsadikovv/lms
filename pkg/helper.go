@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"database/sql"
+	"math/rand"
 )
 
 func NullStringToString(s sql.NullString) string {
@@ -18,4 +19,9 @@ func NullTimeToString(s sql.NullTime) string {
 	}
 
 	return ""
+}
+
+func GenerateOTP() int {
+
+	return rand.Intn(900000) + 100000
 }

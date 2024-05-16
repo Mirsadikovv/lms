@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS students (
   external_id varchar(50),
   phone varchar(50),
   mail varchar(50),
-  pasword varchar(50),
+  pasword varchar(255),
   created_at timestamp NOT NULL DEFAULT NOW(),
   updated timestamp
 );

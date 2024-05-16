@@ -1,12 +1,11 @@
 ALTER TABLE students
-ADD CONSTRAINT phone UNIQUE (phone);
+ADD CONSTRAINT phone_s UNIQUE (phone);
 
 ALTER TABLE teachers
-ADD CONSTRAINT phone UNIQUE (phone);
+ADD CONSTRAINT phone_t UNIQUE (phone);
 
 ALTER TABLE students
-ADD CONSTRAINT mail UNIQUE (mail);
-
+ADD CONSTRAINT mail_s UNIQUE (mail);
 
 ALTER TABLE teachers
-ADD CONSTRAINT mail UNIQUE (mail);
+ADD CONSTRAINT mail_t UNIQUE (mail);
